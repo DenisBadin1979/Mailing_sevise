@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
 
-def base_1(request):
-    return render(request, "services/base.html")
+
+class BaseView(TemplateView):
+    template_name = "services/base.html"
