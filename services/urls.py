@@ -1,12 +1,12 @@
 from services.apps import ServicesConfig
 from django.urls import path
-from services.views import base_1
-
+from services.views import BaseView, HomePageView
 
 app_name = ServicesConfig.name
 
 
 urlpatterns = [
 
-    path("", base_1, name="index"),
+    path("", BaseView.as_view(), name="index"),
+    path('', HomePageView.as_view(), name='home'),
 ]

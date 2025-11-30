@@ -1,0 +1,36 @@
+{% extends 'services/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Статистика рассылок</h1>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Всего рассылок</h3>
+            <div class="stat-number">{{ total_mailings }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Активные рассылки</h3>
+            <div class="stat-number">{{ active_mailings }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Уникальных получателей</h3>
+            <div class="stat-number">{{ unique_recipients }}</div>
+        </div>
+    </div>
+
+    <!-- Дополнительный контент, если используем ListView -->
+<!--    {% if mailings %}-->
+<!--    <div class="recent-mailings mt-5">-->
+<!--        <h2>Последние рассылки</h2>-->
+<!--        <ul>-->
+<!--            {% for mailing in mailings %}-->
+<!--            <li>{{ mailing.title }} - {{ mailing.get_status_display }}</li>-->
+<!--            {% endfor %}-->
+<!--        </ul>-->
+<!--    </div>-->
+<!--    {% endif %}-->
+</div>
+{% endblock %}
