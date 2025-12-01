@@ -8,14 +8,11 @@ class BaseView(TemplateView):
     template_name = "services/base.html"
 
 
-class HomePageView(ListView):
-    template_name = 'services/mailing.html'
+class MailingListView(ListView):
+    template_name = 'services/mailing_list.html'
     model = Mailing
     context_object_name = 'mailings'
 
-    def get_queryset(self):
-        # Можно вернуть последние рассылки или пустой queryset
-        return Mailing.objects.all()[:5]  # последние 5 рассылок
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
