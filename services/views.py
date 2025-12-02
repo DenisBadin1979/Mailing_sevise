@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 from services.models import Mailing, RecipientMailing
 
@@ -11,7 +11,11 @@ class BaseView(TemplateView):
 class MailingListView(ListView):
     template_name = 'services/mailing_list.html'
     model = Mailing
-    context_object_name = 'mailings'
+    context_object_name = 'mailings_list'
+
+    def get_queryset(self):
+        # Возвращаем последние рассылки для отображения
+        return Mailing.objects.all()
 
 
     def get_context_data(self, **kwargs):
@@ -23,3 +27,8 @@ class MailingListView(ListView):
         context['unique_recipients'] = RecipientMailing.objects.count()
 
         return context
+
+class RecipientMailingDetailVew(DetailView):
+    template_name = "services/rec.html"
+    model = RecipientMailing
+    context_object_name = 'recipient'

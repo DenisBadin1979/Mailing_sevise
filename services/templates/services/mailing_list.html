@@ -52,4 +52,40 @@
         margin-top: 10px;
     }
 </style>
+<!-- Отображаем последние рассылки -->
+    {% if mailings_list %}
+    <div class="recent-mailings mt-5">
+        <h2>Последние рассылки</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Получатель рассылки</th>
+                        <th>Тема письма</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mailing in mailings_list %}
+                    <tr>
+                        <td>
+                            {% for client in mailing.recipients.all %}
+                            {{ client.email }}
+                            {% endfor %}
+                        </td>
+                        <td>{{ mailing.message }}</td>
+                        <td>
+                            <span class="badge {% if mailing.status == 'started' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ mailing.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ mailing.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}
