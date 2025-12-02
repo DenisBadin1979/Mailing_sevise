@@ -1,5 +1,11 @@
+from datetime import timezone
+from winreg import CreateKeyEx
+
+from django.urls import reverse_lazy
+from django.utils import timezone
+
 from django.shortcuts import render
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from services.models import Mailing, RecipientMailing
 
@@ -11,15 +17,53 @@ class BaseView(TemplateView):
 class MailingListView(ListView):
     template_name = 'services/mailing_list.html'
     model = Mailing
-    context_object_name = 'mailings'
+    context_object_name = 'mailings_list'
+
+    def get_queryset(self):
+        # Возвращаем последние рассылки для отображения
+        return Mailing.objects.all()
 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        now = timezone.now()
 
         # Добавляем статистику
         context['total_mailings'] = Mailing.objects.count()
-        context['active_mailings'] = Mailing.objects.filter(status='started').count()
+        context['active_mailings'] = Mailing.objects.filter(status='started',
+                                                            start_datetime__lte=now,
+                                                            end_datetime__gte=now).count()
         context['unique_recipients'] = RecipientMailing.objects.count()
 
         return context
+
+class RecipientMailingListVew(ListView):
+    template_name = "services/recipient_list.html"
+    model = RecipientMailing
+    context_object_name = 'recipients'
+    success_url = reverse_lazy('mailings_list')
+
+
+class RecipientMailingCreateView(CreateView):
+    template_name = "services/recipient_create.html"
+    model = RecipientMailing
+    fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
+    success_url = reverse_lazy('recipient_list')
+
+class RecipientMailingDetailView(DetailView):
+    template_name = "services/recipient_detail.html"
+    model = RecipientMailing
+    context_object_name = 'recipient_detail'
+    success_url = reverse_lazy('recipient_list')
+
+class RecipientMailingUpdateView(UpdateView):
+    template_name = "services/recipient_create.html"
+    model = RecipientMailing
+    fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
+    success_url = reverse_lazy('recipient_list')
+
+
+class RecipientMailingDeleteView(DeleteView):
+    model = RecipientMailing
+    template_name = 'services/recipient_delete.html'
+    success_url = reverse_lazy('recipient_list')

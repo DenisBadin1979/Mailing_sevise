@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список получателей рассылки</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Список получателей рассылки</h1>
+        <a href="{% url 'services:recipient_create' %}" class="btn btn-primary mb-3">Создать новый объект</a>
+        <ul class="list-group">
+            {% for rec in recipients %}
+                <li class="list-group-item">
+                    <a href="{% url 'services:recipient_detail' rec.pk %}">{{ rec.email }}</a>
+                    <a href="{% url 'services:recipient_edit' rec.pk %}" class="btn btn-sm btn-secondary ml-3">Редактировать</a>
+                    <a href="{% url 'services:recipient_delete' rec.pk %}" class="btn btn-sm btn-danger ml-1">Удалить</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
