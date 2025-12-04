@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from services.forms import MailingForm
 from services.models import Mailing, RecipientMailing, Message
 
 
@@ -100,3 +101,28 @@ class MessageDeleteView(DeleteView):
     template_name = 'services/message_delete.html'
     context_object_name = 'message_delete'
     success_url = reverse_lazy('services:message_list')
+
+class MailingCreateView(CreateView):
+    template_name = "services/mail_create.html"
+    model = Mailing
+    form_class = MailingForm
+    success_url = reverse_lazy('services:mailing_list')
+
+class MailingDetailView(DetailView):
+    template_name = "services/mail_detail.html"
+    model = Mailing
+    context_object_name = 'mail_detail'
+    success_url = reverse_lazy('services:mailing_list')
+
+class MailingUpdateView(UpdateView):
+    template_name = "services/mail_create.html"
+    model = Mailing
+    form_class = MailingForm
+    success_url = reverse_lazy('services:mailing_list')
+
+
+class MailingDeleteView(DeleteView):
+    model = Mailing
+    template_name = 'services/mail_delete.html'
+    context_object_name = 'mail_delete'
+    success_url = reverse_lazy('services:mailing_list')

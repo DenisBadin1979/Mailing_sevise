@@ -2,7 +2,8 @@ from services.apps import ServicesConfig
 from django.urls import path
 from services.views import BaseView, MailingListView, RecipientMailingListVew, RecipientMailingCreateView, \
     RecipientMailingDetailView, RecipientMailingUpdateView, RecipientMailingDeleteView, MessageDeleteView, \
-    MessageUpdateView, MessageDetailView, MessageCreateView, MessageListVew
+    MessageUpdateView, MessageDetailView, MessageCreateView, MessageListVew, MailingCreateView, MailingUpdateView, \
+    MailingDetailView, MailingDeleteView
 
 app_name = ServicesConfig.name
 
@@ -22,4 +23,9 @@ urlpatterns = [
     path('message/<int:pk>/',  MessageDetailView.as_view(), name='message_detail'),
     path('message/<int:pk>/edit/',  MessageUpdateView.as_view(), name='message_edit'),
     path('message/<int:pk>/delete/',  MessageDeleteView.as_view(), name='message_delete'),
+
+    path('mail_create/', MailingCreateView.as_view(), name='mail_create'),
+    path('mail/<int:pk>/edit/', MailingUpdateView.as_view(), name='mail_edit'),
+    path('mail/<int:pk>/',  MailingDetailView.as_view(), name='mail_detail'),
+    path('mail/<int:pk>/delete/',  MailingDeleteView.as_view(), name='mail_delete'),
 ]

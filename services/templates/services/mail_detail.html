@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Детали рассылки</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Детали рассылки</h1>
+        <p>Тема сообщений: {{ mail_detail.message }}</p>
+        <p>Получатели:
+            <td>
+                {% for client in mail_detail.recipients.all %}
+                <p> Электронный адрес - {{ client.email }}</p>
+                <p>Ф.И.О. -  {{ client }}</p>
+                <p>Комментарий - {{ client.comment }}</p>
+                {% endfor %}
+            </td>
+        </p>
+        <a href="{% url 'services:mail_edit' mail_detail.pk %}" class="btn btn-secondary">Редактировать</a>
+        <a href="{% url 'services:mail_delete' mail_detail.pk %}" class="btn btn-danger">Удалить</a>
+        <a href="{% url 'services:mailing_list' %}" class="btn btn-primary">Вернуться к списку</a>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
