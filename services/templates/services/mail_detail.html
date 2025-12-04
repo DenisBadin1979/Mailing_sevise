@@ -17,6 +17,11 @@
                 {% endfor %}
             </td>
         </p>
+        <p>Статус: {{ mail_detail.status }}</p>
+        <p>Начало рассылки: {{ mail_detail.start_datetime }}</p>
+        <p>Конец рассылки: {{ mail_detail.message }}</p>
+        <p>Дата создания: {{ mail_detail.created_at }}</p>
+        <p>ДАта обновления: {{ mail_detail.updated_at }}</p>
         <a href="{% url 'services:mail_edit' mail_detail.pk %}" class="btn btn-secondary">Редактировать</a>
         <a href="{% url 'services:mail_delete' mail_detail.pk %}" class="btn btn-danger">Удалить</a>
         <a href="{% url 'services:mailing_list' %}" class="btn btn-primary">Вернуться к списку</a>
