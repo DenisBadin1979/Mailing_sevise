@@ -48,7 +48,7 @@ class RecipientMailingCreateView(CreateView):
     template_name = "services/recipient_create.html"
     model = RecipientMailing
     fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
-    success_url = reverse_lazy('recipient_list')
+    success_url = reverse_lazy('services:recipient_list')
 
 class RecipientMailingDetailView(DetailView):
     template_name = "services/recipient_detail.html"
@@ -60,10 +60,11 @@ class RecipientMailingUpdateView(UpdateView):
     template_name = "services/recipient_create.html"
     model = RecipientMailing
     fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
-    success_url = reverse_lazy('recipient_list')
+    success_url = reverse_lazy('services:recipient_list')
 
 
 class RecipientMailingDeleteView(DeleteView):
     model = RecipientMailing
     template_name = 'services/recipient_delete.html'
-    success_url = reverse_lazy('recipient_list')
+    context_object_name = 'recipient_delete'
+    success_url = reverse_lazy('services:recipient_list')
