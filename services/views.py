@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from services.models import Mailing, RecipientMailing
+from services.models import Mailing, RecipientMailing, Message
 
 
 class BaseView(TemplateView):
@@ -48,7 +48,7 @@ class RecipientMailingCreateView(CreateView):
     template_name = "services/recipient_create.html"
     model = RecipientMailing
     fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
-    success_url = reverse_lazy('recipient_list')
+    success_url = reverse_lazy('services:recipient_list')
 
 class RecipientMailingDetailView(DetailView):
     template_name = "services/recipient_detail.html"
@@ -60,10 +60,43 @@ class RecipientMailingUpdateView(UpdateView):
     template_name = "services/recipient_create.html"
     model = RecipientMailing
     fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
-    success_url = reverse_lazy('recipient_list')
+    success_url = reverse_lazy('services:recipient_list')
 
 
 class RecipientMailingDeleteView(DeleteView):
     model = RecipientMailing
     template_name = 'services/recipient_delete.html'
-    success_url = reverse_lazy('recipient_list')
+    context_object_name = 'recipient_delete'
+    success_url = reverse_lazy('services:recipient_list')
+
+class MessageListVew(ListView):
+    template_name = "services/message_list.html"
+    model = Message
+    context_object_name = 'messages'
+    success_url = reverse_lazy('messages_list')
+
+
+class MessageCreateView(CreateView):
+    template_name = "services/message_create.html"
+    model = Message
+    fields = ['subject_message', 'body_message']
+    success_url = reverse_lazy('services:message_list')
+
+class MessageDetailView(DetailView):
+    template_name = "services/message_detail.html"
+    model = Message
+    context_object_name = 'message_detail'
+    success_url = reverse_lazy('message_list')
+
+class MessageUpdateView(UpdateView):
+    template_name = "services/message_create.html"
+    model = Message
+    fields = ['subject_message', 'body_message']
+    success_url = reverse_lazy('services:message_list')
+
+
+class MessageDeleteView(DeleteView):
+    model = Message
+    template_name = 'services/message_delete.html'
+    context_object_name = 'message_delete'
+    success_url = reverse_lazy('services:message_list')

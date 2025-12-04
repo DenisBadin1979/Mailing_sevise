@@ -6,9 +6,9 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Электронный адрес: {{ recipient_detail.email }}</h1>
-        <p>Фамилия Имя Отчество: {{ recipient_detail.last_name }}</p>
-        <p>Может не нужно будет: {{ recipient_detail.first_name }}</p>
+        <h1 class="mb-4">Получатель рассылки</h1>
+        <p>Электронный адрес: {{ recipient_detail.email }}</p>
+        <p>Фамилия Имя Отчество: {{ recipient_detail }}</p>
         <p>Комментарий: {{ recipient_detail.comment }}</p>
         <a href="{% url 'services:recipient_edit' recipient_detail.pk %}" class="btn btn-secondary">Редактировать</a>
         <a href="{% url 'services:recipient_delete' recipient_detail.pk %}" class="btn btn-danger">Удалить</a>
