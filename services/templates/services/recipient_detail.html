@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Детали Получателя рассылки</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Электронный адрес: {{ recipient_detail.email }}</h1>
+        <p>Фамилия Имя Отчество: {{ recipient_detail.last_name }}</p>
+        <p>Может не нужно будет: {{ recipient_detail.first_name }}</p>
+        <p>Комментарий: {{ recipient_detail.comment }}</p>
+        <a href="{% url 'services:recipient_edit' recipient_detail.pk %}" class="btn btn-secondary">Редактировать</a>
+        <a href="{% url 'services:recipient_delete' recipient_detail.pk %}" class="btn btn-danger">Удалить</a>
+        <a href="{% url 'services:recipient_list' %}" class="btn btn-primary">Вернуться к списку</a>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

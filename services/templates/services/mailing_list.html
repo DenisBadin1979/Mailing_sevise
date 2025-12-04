@@ -82,8 +82,8 @@
                                 {{ mailing.get_status_display }}
                             </span>
                         </td>
-                        <td>{{ mailing.start_datetime|date:"d.m.Y H:i" }}</td>
                         <td>{{ mailing.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ mailing.start_datetime|date:"d.m.Y H:i" }}</td>
                         <td>{{ mailing.end_datetime|date:"d.m.Y H:i" }}</td>
                     </tr>
                     {% endfor %}
