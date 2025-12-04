@@ -114,6 +114,21 @@ class MailingDetailView(DetailView):
     context_object_name = 'mail_detail'
     success_url = reverse_lazy('services:mailing_list')
 
+    def get_object(self, queryset=None):
+        """Получаем объект и обновляем его статус"""
+        obj = super().get_object(queryset)
+        obj.update_status()  # ← пересчёт и сохранение статуса
+        return obj
+
+    def get_context_data(self, **kwargs):
+        """Добавляем в контекст информацию о текущем статусе"""
+        context = super().get_context_data(**kwargs)
+        mailing = self.get_object()
+        context['current_status'] = mailing.get_current_status()
+        context['status_changed'] = (mailing.status != context['current_status'])
+        return context
+
+
 class MailingUpdateView(UpdateView):
     template_name = "services/mail_create.html"
     model = Mailing

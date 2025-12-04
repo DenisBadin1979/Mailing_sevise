@@ -1,3 +1,6 @@
+
+from django.utils import timezone
+
 from django.db import models
 
 class RecipientMailing (models.Model):
@@ -69,13 +72,87 @@ class Mailing(models.Model):
     def __str__(self):
         return f"Рассылка #{self.id} - {self.message.subject_message}"
 
-    @property
-    def is_active(self):
-        """Проверяет, активна ли рассылка в данный момент"""
-        from django.utils import timezone
+    def update_status(self):
+        """
+        Динамическое обновление статуса рассылки.
+        Вызывается при каждом обращении к объекту рассылки.
+        """
         now = timezone.now()
-        return (self.start_datetime <= now <= self.end_datetime and
-                self.status == self.Status.STARTED)
+
+        # Вычисляем новый статус на основе текущего времени
+        if now < self.start_datetime:
+            new_status = self.Status.CREATED
+        elif self.start_datetime <= now <= self.end_datetime:
+            new_status = self.Status.STARTED
+        else:  # now > self.end_datetime
+            new_status = self.Status.COMPLETED
+
+        # Обновляем статус только если он изменился
+        if self.status != new_status:
+            self.status = new_status
+            # Используем update() для избежания рекурсии и вызова save()
+            Mailing.objects.filter(pk=self.pk).update(status=new_status)
+            # Обновляем объект в памяти
+            self.refresh_from_db(fields=['status'])
+            return True  # Возвращаем True, если статус был изменен
+
+        return False  # Возвращаем False, если статус не изменился
+
+    def get_current_status(self):
+        """
+        Возвращает текущий статус без сохранения в БД.
+        Используется для отображения статуса без изменения данных.
+        """
+        now = timezone.now()
+
+        if now < self.start_datetime:
+            return self.Status.CREATED
+        elif self.start_datetime <= now <= self.end_datetime:
+            return self.Status.STARTED
+        else:
+            return self.Status.COMPLETED
+
+    def save(self, *args, **kwargs):
+        """Переопределяем save для валидации"""
+        # При сохранении новой рассылки или изменении дат
+        # обновляем статус на основе текущего времени
+        self.full_clean()
+
+        # Если это новый объект (еще не сохранен в БД)
+        if not self.pk:
+            now = timezone.now()
+            if now < self.start_datetime:
+                self.status = self.Status.CREATED
+            elif self.start_datetime <= now <= self.end_datetime:
+                self.status = self.Status.STARTED
+            else:
+                self.status = self.Status.COMPLETED
+        else:
+            # Для существующего объекта пересчитываем статус
+            # перед сохранением, если изменились даты
+            original = Mailing.objects.get(pk=self.pk)
+            if (original.start_datetime != self.start_datetime or
+                    original.end_datetime != self.end_datetime):
+                now = timezone.now()
+                if now < self.start_datetime:
+                    self.status = self.Status.CREATED
+                elif self.start_datetime <= now <= self.end_datetime:
+                    self.status = self.Status.STARTED
+                else:
+                    self.status = self.Status.COMPLETED
+
+        super().save(*args, **kwargs)
+
+    @property
+    def status_display_with_current(self):
+        """Отображает как сохраненный статус, так и текущий вычисленный"""
+        current = self.get_current_status()
+        saved = self.get_status_display()
+
+        if self.status == current:
+            return saved
+        else:
+            return f"{saved} (фактически: {self.Status(current).label})"
 
 class AttemptMailing (models.Model):
     """Модель попытки рассылки"""

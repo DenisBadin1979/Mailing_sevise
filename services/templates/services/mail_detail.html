@@ -17,7 +17,7 @@
                 {% endfor %}
             </td>
         </p>
-        <p>Статус: {{ mail_detail.status }}</p>
+        <p>Статус: {{ mail_detail.get_status_display }}</p>
         <p>Начало рассылки: {{ mail_detail.start_datetime }}</p>
         <p>Конец рассылки: {{ mail_detail.message }}</p>
         <p>Дата создания: {{ mail_detail.created_at }}</p>
