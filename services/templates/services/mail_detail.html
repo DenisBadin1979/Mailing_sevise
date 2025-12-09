@@ -1,31 +1,286 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Детали рассылки</title>
+    <meta charset="UTF-8">
+    <title>Детали рассылки #{{ mail_detail.id }}</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .recipient-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .status-badge {
+            font-size: 0.9em;
+            padding: 5px 10px;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4">Детали рассылки</h1>
-        <p>Тема сообщений: {{ mail_detail.message }}</p>
-        <p>Получатели:
-            <td>
-                {% for client in mail_detail.recipients.all %}
-                <p> Электронный адрес - {{ client.email }}</p>
-                <p>Ф.И.О. -  {{ client }}</p>
-                <p>Комментарий - {{ client.comment }}</p>
-                {% endfor %}
-            </td>
-        </p>
-        <p>Статус: {{ mail_detail.get_status_display }}</p>
-        <p>Начало рассылки: {{ mail_detail.start_datetime }}</p>
-        <p>Конец рассылки: {{ mail_detail.message }}</p>
-        <p>Дата создания: {{ mail_detail.created_at }}</p>
-        <p>ДАта обновления: {{ mail_detail.updated_at }}</p>
-        <a href="{% url 'services:mail_edit' mail_detail.pk %}" class="btn btn-secondary">Редактировать</a>
-        <a href="{% url 'services:mail_delete' mail_detail.pk %}" class="btn btn-danger">Удалить</a>
-        <a href="{% url 'services:mailing_list' %}" class="btn btn-primary">Вернуться к списку</a>
+    <div class="container mt-4">
+        <!-- Сообщения об успехе/ошибках -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h4 mb-0">Рассылка #{{ mail_detail.id }}</h1>
+                    <span class="badge bg-secondary">{{ mail_detail.get_status_display }}</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <!-- Основная информация -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2">Основная информация</h5>
+                        <p><strong>Тема сообщения:</strong> {{ mail_detail.message.subject_message }}</p>
+                        <p><strong>Сообщение:</strong>
+                            <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#messageBody">
+                                Показать текст
+                            </button>
+                        </p>
+                        <div class="collapse" id="messageBody">
+                            <div class="card card-body">
+                                {{ mail_detail.message.body_message|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2">Время рассылки</h5>
+                        <p><strong>Начало:</strong> {{ mail_detail.start_datetime|date:"d.m.Y H:i" }}</p>
+                        <p><strong>Окончание:</strong> {{ mail_detail.end_datetime|date:"d.m.Y H:i" }}</p>
+                        <p><strong>Дата создания:</strong> {{ mail_detail.created_at|date:"d.m.Y H:i" }}</p>
+                        <p><strong>Дата обновления:</strong> {{ mail_detail.updated_at|date:"d.m.Y H:i" }}</p>
+
+                        <!-- Кнопка ручного запуска -->
+                        <div class="mt-3">
+                            <form method="post" action="{% url 'services:start_mailing_now' mail_detail.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success"
+                                        {% if not can_send_now %}disabled{% endif %}>
+                                    <i class="bi bi-send-fill"></i> Запустить рассылку сейчас
+                                </button>
+
+                                {% if not can_send_now %}
+                                    <div class="alert alert-warning mt-2">
+                                        <small>
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                            Рассылку можно запустить только в период с
+                                            {{ mail_detail.start_datetime|date:"d.m.Y H:i" }}
+                                            по {{ mail_detail.end_datetime|date:"d.m.Y H:i" }}
+                                            <br>
+                                            Текущий статус: {{ mail_detail.get_status_display }}
+                                        </small>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info mt-2">
+                                        <small>
+                                            <i class="bi bi-info-circle"></i>
+                                            Рассылка будет отправлена всем получателям, указанным ниже.
+                                            Каждому получателю будет отправлено отдельное письмо.
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Получатели -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2">
+                        Получатели
+                        <span class="badge bg-primary">{{ mail_detail.recipients.count }}</span>
+                    </h5>
+
+                    {% if mail_detail.recipients.all %}
+                        <div class="row">
+                            {% for client in mail_detail.recipients.all %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="recipient-card">
+                                        <h6 class="card-subtitle mb-2 text-muted">
+                                            <i class="bi bi-person-circle"></i> {{ client }}
+                                        </h6>
+                                        <p class="mb-1">
+                                            <strong>Email:</strong>
+                                            <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+                                        </p>
+                                        {% if client.comment %}
+                                            <p class="mb-1">
+                                                <strong>Комментарий:</strong>
+                                                <small>{{ client.comment|truncatechars:50 }}</small>
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-circle"></i>
+                            Нет получателей для этой рассылки.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- История попыток отправки -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2">
+                        История отправок
+                        <span class="badge bg-secondary">{{ mail_detail.attempts.count }}</span>
+                    </h5>
+
+                    {% if mail_detail.attempts.all %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Дата и время</th>
+                                        <th>Получатель</th>
+                                        <th>Статус</th>
+                                        <th>Ответ сервера</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attempt in mail_detail.attempts.all|slice:":10" %}
+                                        <tr class="{% if attempt.status == 'success' %}table-success{% else %}table-danger{% endif %}">
+                                            <td>{{ attempt.attempt_time|date:"d.m.Y H:i" }}</td>
+                                            <td>
+                                                {% if attempt.recipient %}
+                                                    {{ attempt.recipient.email }}
+                                                {% else %}
+                                                    <span class="text-muted">Удален</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if attempt.status == 'success' %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {{ attempt.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>{{ attempt.server_response|truncatechars:50 }}</small>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if mail_detail.attempts.count > 10 %}
+                            <div class="text-center mt-2">
+                                <button class="btn btn-sm btn-outline-secondary" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#allAttempts">
+                                    Показать все ({{ mail_detail.attempts.count }})
+                                </button>
+                            </div>
+                            <div class="collapse mt-2" id="allAttempts">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Дата и время</th>
+                                                <th>Получатель</th>
+                                                <th>Статус</th>
+                                                <th>Ответ сервера</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for attempt in mail_detail.attempts.all %}
+                                                <tr class="{% if attempt.status == 'success' %}table-success{% else %}table-danger{% endif %}">
+                                                    <td>{{ attempt.attempt_time|date:"d.m.Y H:i" }}</td>
+                                                    <td>
+                                                        {% if attempt.recipient %}
+                                                            {{ attempt.recipient.email }}
+                                                        {% else %}
+                                                            <span class="text-muted">Удален</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge {% if attempt.status == 'success' %}bg-success{% else %}bg-danger{% endif %}">
+                                                            {{ attempt.get_status_display }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <small>{{ attempt.server_response|truncatechars:50 }}</small>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Пока не было попыток отправки.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <a href="{% url 'services:mail_edit' mail_detail.pk %}" class="btn btn-warning">
+                            <i class="bi bi-pencil-square"></i> Редактировать
+                        </a>
+                        <a href="{% url 'services:mail_delete' mail_detail.pk %}" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Удалить
+                        </a>
+                    </div>
+                    <div>
+                        <a href="{% url 'services:mailing_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> К списку рассылок
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Автоматическое скрытие сообщений через 5 секунд
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        // Обновление статуса при нажатии кнопки отправки
+        document.querySelector('form[action*="start_mailing_now"]').addEventListener('submit', function(e) {
+            var button = this.querySelector('button[type="submit"]');
+            var originalText = button.innerHTML;
+
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Отправка...';
+
+            // Можно добавить здесь AJAX запрос, если хотите сделать отправку без перезагрузки страницы
+        });
+    </script>
 </body>
 </html>

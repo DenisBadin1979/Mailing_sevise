@@ -1,7 +1,10 @@
-
+from django.core.mail import send_mail
 from django.utils import timezone
 
 from django.db import models
+
+from config import settings
+
 
 class RecipientMailing (models.Model):
     """Модель получатель рассылки"""
@@ -63,6 +66,9 @@ class Mailing(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+
+    # ДОБАВЛЯЕМ ЭТО ПОЛЕ:
+    is_active = models.BooleanField(default=True, verbose_name='Активна')
 
     class Meta:
         verbose_name = 'Рассылка'
@@ -154,8 +160,68 @@ class Mailing(models.Model):
         else:
             return f"{saved} (фактически: {self.Status(current).label})"
 
+    def can_send_now(self):
+        """Проверка, можно ли отправлять рассылку сейчас"""
+        now = timezone.now()
+        return (self.is_active and
+                self.start_datetime <= now <= self.end_datetime and
+                self.status == self.Status.STARTED)
 
-class MailingAttempt(models.Model):
+    def send_to_all_recipients(self):
+        """
+        Отправка рассылки всем получателям
+        Возвращает словарь с результатами
+        """
+        if not self.can_send_now():
+            return {
+                'success': 0,
+                'failed': 0,
+                'errors': ['Рассылка не может быть отправлена в данный момент']
+            }
+
+        results = {
+            'success': 0,
+            'failed': 0,
+            'errors': []
+        }
+
+        for recipient in self.recipients.all():
+            try:
+                # Отправляем письмо
+                send_mail(
+                    subject=self.message.subject_message,
+                    message=self.message.body_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[recipient.email],
+                    fail_silently=False,
+                )
+
+                # Записываем успешную попытку
+                AttemptMailing.objects.create(
+                    mailing=self,
+                    recipient=recipient,
+                    status=AttemptMailing.Status.SUCCESS,
+                    server_response='Письмо успешно отправлено'
+                )
+
+                results['success'] += 1
+
+            except Exception as e:
+                # Записываем неудачную попытку
+                AttemptMailing.objects.create(
+                    mailing=self,
+                    recipient=recipient,
+                    status=AttemptMailing.Status.FAILED,
+                    server_response=str(e)
+                )
+
+                results['failed'] += 1
+                results['errors'].append(f"{recipient.email}: {str(e)}")
+
+        return results
+
+
+class AttemptMailing(models.Model):
     """Модель попытки отправки рассылки"""
 
     class Status(models.TextChoices):
@@ -181,7 +247,7 @@ class MailingAttempt(models.Model):
         related_name='attempts',
         verbose_name='Рассылка'
     )
-    recipient = models.ForeignKey(
+    recipients = models.ForeignKey(
         RecipientMailing,
         on_delete=models.SET_NULL,
         null=True,

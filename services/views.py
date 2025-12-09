@@ -1,19 +1,45 @@
 from datetime import timezone
 from winreg import CreateKeyEx
 
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.utils import timezone
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from services.forms import MailingForm
 from services.models import Mailing, RecipientMailing, Message
+from services.utils import send_mailing_manually
+
+from django.contrib import messages
+
 
 
 class BaseView(TemplateView):
     template_name = "services/base.html"
 
+
+@login_required
+def start_mailing_now(request, pk):
+    """Ручной запуск рассылки через интерфейс"""
+    mailing = get_object_or_404(Mailing, pk=pk)
+
+    # Проверка прав доступа
+    # if not (request.user == mailing.owner or
+    #         request.user.groups.filter(name='managers').exists()):
+    #     messages.error(request, 'У вас нет прав для запуска этой рассылки')
+    #     return redirect('mailing_detail', pk=pk)
+
+    # Отправка рассылки
+    success, message = send_mailing_manually(mailing)
+
+    if success:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
+
+    return redirect('mail_detail', pk=pk)
 
 class MailingListView(ListView):
     template_name = 'services/mailing_list.html'
@@ -126,6 +152,16 @@ class MailingDetailView(DetailView):
         mailing = self.get_object()
         context['current_status'] = mailing.get_current_status()
         context['status_changed'] = (mailing.status != context['current_status'])
+
+        # Добавляем информацию о возможности отправки
+        context['can_send_now'] = mailing.can_send_now()
+
+        # Статистика попыток
+        attempts = mailing.attempts.all()
+        context['attempts'] = attempts
+        context['success_count'] = attempts.filter(status='success').count()
+        context['failed_count'] = attempts.filter(status='failed').count()
+
         return context
 
 

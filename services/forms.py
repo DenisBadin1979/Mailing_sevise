@@ -74,3 +74,4 @@ class MailingForm(forms.ModelForm):
             self.add_error('end_datetime', 'Интервал между началом и окончанием должен быть не менее 5 минут')
 
         return cleaned_data
+
