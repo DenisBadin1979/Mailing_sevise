@@ -1,10 +1,11 @@
 from django.core.mail import send_mail
 from django.utils import timezone
-
+from django.conf import settings
 from django.db import models
 
 from config import settings
-
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class RecipientMailing (models.Model):
     """Модель получатель рассылки"""
@@ -13,6 +14,7 @@ class RecipientMailing (models.Model):
     first_name = models.CharField(max_length=150, verbose_name='Имя')
     middle_name = models.CharField(max_length=150, blank=True, verbose_name='Отчество')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipients', verbose_name='Владелец')
 
     class Meta:
         verbose_name = ('Получатель рассылки')
@@ -29,6 +31,7 @@ class Message (models.Model):
     """Модель сообщения"""
     subject_message = models.CharField(max_length=100, verbose_name='Тема письма')
     body_message = models.TextField(verbose_name='Тело сообщения')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages', verbose_name='Сообщение')
 
     class Meta:
         verbose_name = ('Сообщение')
@@ -66,6 +69,7 @@ class Mailing(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='information', verbose_name='Рассылка')
 
     # ДОБАВЛЯЕМ ЭТО ПОЛЕ:
     is_active = models.BooleanField(default=True, verbose_name='Активна')
@@ -254,6 +258,7 @@ class AttemptMailing(models.Model):
         blank=True,
         verbose_name='Получатель'
     )
+
 
     class Meta:
         verbose_name = 'Попытка рассылки'

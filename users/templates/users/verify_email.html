@@ -1,0 +1,26 @@
+{% extends "users/base_auth.html" %}
+
+{% block title %}Подтверждение email{% endblock %}
+{% block auth_title %}Подтверждение email{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-envelope-check display-1 text-primary mb-3"></i>
+            <h4>Подтверждение email</h4>
+            <p class="mb-0">Пожалуйста, проверьте вашу почту и перейдите по ссылке для подтверждения email.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block auth_links %}
+    <p><a href="{% url 'home' %}">На главную</a></p>
+{% endblock %}

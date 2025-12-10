@@ -1,0 +1,22 @@
+{% extends "users/base_auth.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Регистрация{% endblock %}
+{% block auth_title %}Создание аккаунта{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-person-plus"></i> Зарегистрироваться
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block auth_links %}
+    <p>Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></p>
+    <p><a href="{% url 'home' %}">На главную</a></p>
+{% endblock %}
