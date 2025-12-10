@@ -1,4 +1,4 @@
-{% extends "users/base_auth.html" %}
+{% extends "services/base.html" %}
 {% load crispy_forms_tags %}
 
 {% block title %}Регистрация{% endblock %}
@@ -18,5 +18,5 @@
 
 {% block auth_links %}
     <p>Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></p>
-    <p><a href="{% url 'home' %}">На главную</a></p>
+    <p><a href="{% url 'index' %}">На главную</a></p>
 {% endblock %}

@@ -8,7 +8,7 @@ from .models import Mailing
 class MailingForm(forms.ModelForm):
     class Meta:
         model = Mailing
-        fields = ['start_datetime', 'end_datetime', 'status', 'message', 'recipients']
+        fields = ['start_datetime', 'end_datetime', 'status', 'message', 'recipients', 'owner']
 
         widgets = {
             'start_datetime': forms.DateTimeInput(
@@ -26,6 +26,7 @@ class MailingForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
             'message': forms.Select(attrs={'class': 'form-control'}),
             'recipients': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'owner': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -29,13 +29,13 @@ class RegisterView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('index')
         form = UserRegistrationForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('index')
 
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -58,16 +58,17 @@ class RegisterView(View):
 class LoginView(View):
     """Вход в систему"""
     template_name = 'users/login.html'
+    success_url = reverse_lazy('mailing_list')
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('mailing_list')
         form = UserLoginForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('mailing_list')
 
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
@@ -80,7 +81,7 @@ class LoginView(View):
                 messages.success(request, _('Добро пожаловать!'))
 
                 # Редирект на следующую страницу или домашнюю
-                next_page = request.GET.get('next', 'home')
+                next_page = request.GET.get('next', 'mailing_list')
                 return redirect(next_page)
 
         return render(request, self.template_name, {'form': form})
@@ -91,7 +92,7 @@ def logout_view(request):
     """Выход из системы"""
     logout(request)
     messages.info(request, _('Вы успешно вышли из системы.'))
-    return redirect('home')
+    return redirect('mailing_list')
 
 
 class VerifyEmailView(View):

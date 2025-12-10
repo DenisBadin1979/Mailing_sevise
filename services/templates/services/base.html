@@ -7,6 +7,15 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    <div class="user-auth">
+    {% if user.is_authenticated %}
+        <span>Привет, {{ user.email }}!</span>
+        <a href="{% url 'users:logout' %}" class="btn btn-outline-primary">Выйти</a>
+    {% else %}
+        <a href="{% url 'users:login' %}" class="btn btn-primary">Войти</a>
+        <a href="{% url 'users:register' %}" class="btn btn-outline-primary">Зарегистрироваться</a>
+    {% endif %}
+</div>
 
     <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
         <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
