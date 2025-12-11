@@ -8,7 +8,7 @@ from .models import Mailing
 class MailingForm(forms.ModelForm):
     class Meta:
         model = Mailing
-        fields = ['start_datetime', 'end_datetime', 'status', 'message', 'recipients', 'owner']
+        fields = ['start_datetime', 'end_datetime', 'status', 'message', 'recipients']
 
         widgets = {
             'start_datetime': forms.DateTimeInput(

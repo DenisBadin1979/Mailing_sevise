@@ -203,7 +203,7 @@ class Mailing(models.Model):
                 # Записываем успешную попытку
                 AttemptMailing.objects.create(
                     mailing=self,
-                    recipient=recipient,
+                    recipients=recipient,
                     status=AttemptMailing.Status.SUCCESS,
                     server_response='Письмо успешно отправлено'
                 )

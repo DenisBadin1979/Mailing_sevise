@@ -39,7 +39,7 @@ def start_mailing_now(request, pk):
     else:
         messages.error(request, message)
 
-    return redirect('mail_detail', pk=pk)
+    return redirect('services:mail_detail', pk=pk)
 
 class MailingListView(ListView):
     template_name = 'services/mailing_list.html'
@@ -77,6 +77,10 @@ class RecipientMailingCreateView(CreateView):
     fields = ['email', 'last_name', 'first_name', 'middle_name', 'comment']
     success_url = reverse_lazy('services:recipient_list')
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user  # Устанавливаем владельца
+        return super().form_valid(form)
+
 class RecipientMailingDetailView(DetailView):
     template_name = "services/recipient_detail.html"
     model = RecipientMailing
@@ -109,6 +113,10 @@ class MessageCreateView(CreateView):
     fields = ['subject_message', 'body_message']
     success_url = reverse_lazy('services:message_list')
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user  # Устанавливаем владельца
+        return super().form_valid(form)
+
 class MessageDetailView(DetailView):
     template_name = "services/message_detail.html"
     model = Message
@@ -133,6 +141,10 @@ class MailingCreateView(CreateView):
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('services:mailing_list')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user  # Устанавливаем владельца
+        return super().form_valid(form)
 
 class MailingDetailView(DetailView):
     template_name = "services/mail_detail.html"
