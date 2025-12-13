@@ -142,13 +142,13 @@ class PasswordResetView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('users:login')
         form = CustomPasswordResetForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect('users:login')
 
         form = CustomPasswordResetForm(request.POST)
         if form.is_valid():
@@ -179,7 +179,7 @@ class PasswordResetConfirmView(View):
 
         if not valid:
             messages.error(request, _('Ссылка сброса пароля недействительна или устарела.'))
-            return redirect('users:password_reset')
+            return redirect('users:login')
 
         form = CustomSetPasswordForm(user)
         return render(request, self.template_name, {'form': form, 'token': token})
@@ -189,7 +189,7 @@ class PasswordResetConfirmView(View):
 
         if not valid:
             messages.error(request, _('Ссылка сброса пароля недействительна или устарела.'))
-            return redirect('users:password_reset')
+            return redirect('users:login')
 
         form = CustomSetPasswordForm(user, request.POST)
         if form.is_valid():

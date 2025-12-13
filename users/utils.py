@@ -67,7 +67,7 @@ def send_password_reset_email(user, request):
 
     # Отправляем email
     subject = 'Сброс пароля на сервисе рассылок'
-    message = render_to_string('users/password_reset_email.html', {
+    message = render_to_string('users/email/password_reset_confirm.html', {
         'user': user,
         'reset_url': reset_url,
     })

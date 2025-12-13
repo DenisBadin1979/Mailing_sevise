@@ -13,8 +13,17 @@
             <i class="bi bi-box-arrow-in-right"></i> Войти
         </button>
     </div>
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <a href="{% url 'users:password_reset' %}" class="btn btn-primary my-2">Сбросить пароль</a>
+        </button>
+    </div>
+
+
+
 </form>
 {% endblock %}
+
 
 {% block auth_links %}
     <p>Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрироваться</a></p>

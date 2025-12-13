@@ -139,6 +139,8 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Ваш email на Yandex
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Пароль для приложений
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+PASSWORD_RESET_TIMEOUT = 86400  # 24 часа в секундах
+
 # Настройки аутентификации
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
