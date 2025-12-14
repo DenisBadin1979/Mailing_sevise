@@ -1,15 +1,17 @@
+import logging
+
+from django.conf import settings
+from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+
 from services.models import Mailing
-from django.core.mail import send_mail
-from django.conf import settings
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Отправка всех рассылок, которые должны быть отправлены сейчас'
+    help = "Отправка всех рассылок, которые должны быть отправлены сейчас"
 
     def handle(self, *args, **options):
         now = timezone.now()
@@ -19,13 +21,13 @@ class Command(BaseCommand):
             is_active=True,
             start_datetime__lte=now,
             end_datetime__gte=now,
-            status='started'
+            status="started",
         )
 
-        self.stdout.write(f'Найдено {mailings.count()} рассылок для отправки')
+        self.stdout.write(f"Найдено {mailings.count()} рассылок для отправки")
 
         for mailing in mailings:
-            self.stdout.write(f'Обработка рассылки #{mailing.id}...')
+            self.stdout.write(f"Обработка рассылки #{mailing.id}...")
 
             # Отправляем каждому получателю
             for recipient in mailing.recipients.all():
@@ -41,24 +43,22 @@ class Command(BaseCommand):
                     # Записываем успешную попытку
                     mailing.attempts.create(
                         recipient=recipient,
-                        status='success',
-                        server_response='Письмо успешно отправлено'
+                        status="success",
+                        server_response="Письмо успешно отправлено",
                     )
 
                     self.stdout.write(
-                        self.style.SUCCESS(f'  ✓ Отправлено {recipient.email}')
+                        self.style.SUCCESS(f"  ✓ Отправлено {recipient.email}")
                     )
 
                 except Exception as e:
                     # Записываем неудачную попытку
                     mailing.attempts.create(
-                        recipient=recipient,
-                        status='failed',
-                        server_response=str(e)
+                        recipient=recipient, status="failed", server_response=str(e)
                     )
 
                     self.stdout.write(
-                        self.style.ERROR(f'  ✗ Ошибка {recipient.email}: {e}')
+                        self.style.ERROR(f"  ✗ Ошибка {recipient.email}: {e}")
                     )
 
-        self.stdout.write(self.style.SUCCESS('Отправка завершена'))
+        self.stdout.write(self.style.SUCCESS("Отправка завершена"))

@@ -1,6 +1,6 @@
-from django.core.mail import send_mail
-from django.conf import settings
-from .models import AttemptMailing
+from django.core.cache import cache
+
+from .models import Mailing
 
 
 def send_mailing_manually(mailing):
@@ -26,7 +26,30 @@ def send_mailing_manually(mailing):
     # Отправка
     results = mailing.send_to_all_recipients()
 
-    if results['success'] > 0:
-        return True, f"Успешно отправлено: {results['success']}, Ошибок: {results['failed']}"
+    if results["success"] > 0:
+        return (
+            True,
+            f"Успешно отправлено: {results['success']}, Ошибок: {results['failed']}",
+        )
     else:
         return False, "Не удалось отправить ни одного письма"
+
+
+def get_cached_mailing_stats(user):
+    """Получаем статистику из кеша или вычисляем"""
+    cache_key = f"mailing_stats_{user.id}"
+    stats = cache.get(cache_key)
+
+    if not stats:
+        # Вычисляем статистику
+        stats = {
+            "total_mailings": Mailing.objects.filter(owner=user).count(),
+            "active_mailings": Mailing.objects.filter(
+                owner=user, status="started"
+            ).count(),
+            # ... другие вычисления
+        }
+        # Сохраняем в кеш на 5 минут
+        cache.set(cache_key, stats, 60 * 5)
+
+    return stats

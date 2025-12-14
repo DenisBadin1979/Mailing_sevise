@@ -1,4 +1,15 @@
 {% extends 'services/base.html' %}
+{% load cache %}
+
+<!-- Кешируем блок на 5 минут для каждого пользователя -->
+{% cache 300 mailing_list_block request.user.id %}
+<div class="statistics">
+    <h3>Статистика</h3>
+    <p>Всего рассылок: {{ total_mailings }}</p>
+    <p>Активных: {{ active_mailings }}</p>
+</div>
+{% endcache %}
+
 
 {% block content %}
 <div class="container mt-4">
