@@ -142,7 +142,7 @@ class MailingListView(OwnerQuerysetMixin, LoginRequiredMixin, ListView):
         return f"mailing_list_{self.request.user.id}_{self.request.GET.urlencode()}"
 
 
-class RecipientMailingListVew(ListView):
+class RecipientMailingListVew(LoginRequiredMixin, UserRequiredMixin, OwnerQuerysetMixin, ListView):
     template_name = "services/recipient_list.html"
     model = RecipientMailing
     context_object_name = "recipients"
@@ -181,7 +181,7 @@ class RecipientMailingDeleteView(LoginRequiredMixin, UserRequiredMixin, DeleteVi
     success_url = reverse_lazy("services:recipient_list")
 
 
-class MessageListVew(LoginRequiredMixin, UserRequiredMixin, ListView):
+class MessageListVew(LoginRequiredMixin, UserRequiredMixin, OwnerQuerysetMixin, ListView):
     template_name = "services/message_list.html"
     model = Message
     context_object_name = "messages"
