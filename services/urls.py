@@ -17,7 +17,7 @@ from services.views import (
     RecipientMailingDeleteView,
     RecipientMailingDetailView,
     RecipientMailingListVew,
-    RecipientMailingUpdateView,
+    RecipientMailingUpdateView, MailListView,
 )
 
 from . import views
@@ -61,6 +61,7 @@ urlpatterns = [
     path("mail/<int:pk>/", MailingDetailView.as_view(), name="mail_detail"),
     path("mail/<int:pk>/start/", views.start_mailing_now, name="start_mailing_now"),
     path("mail/<int:pk>/delete/", MailingDeleteView.as_view(), name="mail_delete"),
+    path("mail_list/", MailListView.as_view(), name="mail_list"),
     path("manager/users/", views.UserListView.as_view(), name="user_list"),
     path(
         "manager/users/<int:pk>/toggle/",

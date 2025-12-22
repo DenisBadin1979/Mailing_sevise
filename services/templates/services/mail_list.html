@@ -9,16 +9,58 @@
     <div class="container mt-5">
          <a href="{% url 'services:mailing_list' %}" class="btn btn-primary mb-3">Главная страница</a>
         <h1 class="mb-4">Список сообщений рассылок</h1>
-        <a href="{% url 'services:message_create' %}" class="btn btn-primary mb-3">Создать новое сообщение</a>
-        <ul class="list-group">
-            {% for mess in messages %}
-                <li class="list-group-item">
-                    <a href="{% url 'services:message_detail' mess.pk %}">{{ mess.email }} - {{ mess }} </a>
-                    <a href="{% url 'services:message_edit' mess.pk %}" class="btn btn-sm btn-secondary ml-3">Редактировать</a>
-                    <a href="{% url 'services:message_delete' mess.pk %}" class="btn btn-sm btn-danger ml-1">Удалить</a>
-                </li>
-            {% endfor %}
-        </ul>
+          <p>
+              <a href="{% url 'services:mail_create' %} " class="btn btn-secondary my-2">Создать рассылку</a>
+          </p>
+        <!-- Отображаем последние рассылки -->
+    {% if mail_list %}
+    <div class="recent-mailings mt-5">
+        <h2>Рассылки</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Получатель рассылки</th>
+                        <th>Тема письма</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Дата начало рассылки</th>
+                        <th>Дата окончания рассылки</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mailing in mail_list %}
+                    <tr>
+                        <td>
+                            {% for client in mailing.recipients.all %}
+                            {{ client.email }}
+                            {% endfor %}
+                        </td>
+                        <td>{{ mailing.message }}</td>
+                        <td>
+                            <span class="badge {% if mailing.status == 'started' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ mailing.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ mailing.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ mailing.start_datetime|date:"d.m.Y H:i" }}</td>
+                        <td>{{ mailing.end_datetime|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <!-- Кнопка просмотра -->
+                            <a href="{% url 'services:mail_detail' mailing.pk %}"
+                               class="btn btn-sm btn-info"
+                               title="Просмотр деталей рассылки">
+                                <i class="bi bi-eye"></i> Просмотр
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
     </div>
     <script src="/static/js/bootstrap.bundle.min.js"></script>
 </body>

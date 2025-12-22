@@ -11,6 +11,9 @@
     {% if user.is_authenticated %}
         <span>Привет, {{ user.email }}!</span>
         <a href="{% url 'users:logout' %}" class="btn btn-outline-primary">Выйти</a>
+        <a href="{% url 'services:recipient_list' %} " class="btn btn-primary my-2">Список получателей</a>
+        <a href="{% url 'services:message_list' %}" class="btn btn-primary my-2">Список сообщений</a>
+        <a href="{% url 'services:mail_list' %}" class="btn btn-primary my-2">Список рассылок</a>
     {% else %}
         <a href="{% url 'users:login' %}" class="btn btn-primary">Войти</a>
         <a href="{% url 'users:register' %}" class="btn btn-outline-primary">Зарегистрироваться</a>
@@ -59,11 +62,7 @@
                     <h1 class="fw-light">Сервис рассылки сообщений по электронной почте</h1>
 
                     <p class="lead text-body-secondary">Веб-приложение на Django, которое позволяет пользователям управлять рассылками сообщений для клиентов. Приложение включает функциональность для создания, просмотра, редактирования и удаления рассылок, а также отправки сообщений по требованию.</p>
-                    <p>
-                        <a href="{% url 'services:recipient_list' %} " class="btn btn-primary my-2">Список получателей</a>
-                        <a href="{% url 'services:message_list' %}" class="btn btn-primary my-2">Список сообщений</a>
 
-                    </p>
                 </div>
             </div>
         </section>

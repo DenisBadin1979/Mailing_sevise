@@ -276,6 +276,11 @@ class MailingDeleteView(LoginRequiredMixin, UserRequiredMixin, DeleteView):
     success_url = reverse_lazy("services:mailing_list")
 
 
+class MailListView(OwnerQuerysetMixin, LoginRequiredMixin, ListView):
+    template_name = "services/mail_list.html"
+    model = Mailing
+    context_object_name = "mail_list"
+
 # Просмотр всех пользователей (только для менеджера)
 class UserListView(ManagerRequiredMixin, ListView):
     template_name = "services/user_list.html"
