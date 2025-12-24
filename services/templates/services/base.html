@@ -7,18 +7,32 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="user-auth">
-    {% if user.is_authenticated %}
-        <span>Привет, {{ user.email }}!</span>
-        <a href="{% url 'users:logout' %}" class="btn btn-outline-primary">Выйти</a>
-        <a href="{% url 'services:recipient_list' %} " class="btn btn-primary my-2">Список получателей</a>
-        <a href="{% url 'services:message_list' %}" class="btn btn-primary my-2">Список сообщений</a>
-        <a href="{% url 'services:mail_list' %}" class="btn btn-primary my-2">Список рассылок</a>
-    {% else %}
-        <a href="{% url 'users:login' %}" class="btn btn-primary">Войти</a>
-        <a href="{% url 'users:register' %}" class="btn btn-outline-primary">Зарегистрироваться</a>
-    {% endif %}
-</div>
+    <header class="bg-light border-bottom">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center">
+                    <a href="/" class="text-decoration-none">
+                        <h4 class="mb-0">Сервис рассылок</h4>
+                    </a>
+                </div>
+
+                <!-- Ваш блок авторизации -->
+                <div class="user-auth">
+                    {% if user.is_authenticated %}
+                        <span class="me-3">Привет, {{ user.email }}!</span>
+                        <a href="{% url 'users:logout' %}" class="btn btn-outline-primary">Выйти</a>
+                        <a href="{% url 'services:recipient_list' %}" class="btn btn-primary my-2">Список получателей</a>
+                        <a href="{% url 'services:message_list' %}" class="btn btn-primary my-2">Список сообщений</a>
+                        <a href="{% url 'services:mail_list' %}" class="btn btn-primary my-2">Список рассылок</a>
+                        <a href="{% url 'services:mailing_list' %}" class="btn btn-secondary mb-2">Главная страница</a>
+                    {% else %}
+                        <a href="{% url 'users:login' %}" class="btn btn-primary">Войти</a>
+                        <a href="{% url 'users:register' %}" class="btn btn-outline-primary">Зарегистрироваться</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
 
     <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
         <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"

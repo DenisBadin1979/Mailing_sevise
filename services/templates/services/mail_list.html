@@ -1,13 +1,8 @@
+{% extends 'services/base.html' %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Список сообщений рассылок</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-</head>
-<body>
+{% block title %}Список рассылок{% block content %}
     <div class="container mt-5">
-         <a href="{% url 'services:mailing_list' %}" class="btn btn-primary mb-3">Главная страница</a>
+
         <h1 class="mb-4">Список сообщений рассылок</h1>
           <p>
               <a href="{% url 'services:mail_create' %} " class="btn btn-secondary my-2">Создать рассылку</a>
@@ -62,6 +57,4 @@
     </div>
     {% endif %}
     </div>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
