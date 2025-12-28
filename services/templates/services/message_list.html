@@ -1,0 +1,20 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Список сообщений{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+
+        <h1 class="mb-4">Список сообщений рассылок</h1>
+        <a href="{% url 'services:message_create' %}" class="btn btn-primary mb-3">Создать новое сообщение</a>
+        <ul class="list-group">
+            {% for mess in messages %}
+                <li class="list-group-item">
+                    <a href="{% url 'services:message_detail' mess.pk %}">{{ mess.email }} - {{ mess }} </a>
+                    <a href="{% url 'services:message_edit' mess.pk %}" class="btn btn-sm btn-secondary ml-3">Редактировать</a>
+                    <a href="{% url 'services:message_delete' mess.pk %}" class="btn btn-sm btn-danger ml-1">Удалить</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

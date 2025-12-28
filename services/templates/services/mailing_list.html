@@ -1,0 +1,118 @@
+{% extends 'services/base.html' %}
+{% load cache %}
+
+<!-- Кешируем блок на 5 минут для каждого пользователя -->
+{% cache 300 mailing_list_block request.user.id %}
+<div class="statistics">
+    <h3>Статистика</h3>
+    <p>Всего рассылок: {{ total_mailings }}</p>
+    <p>Активных: {{ active_mailings }}</p>
+</div>
+{% endcache %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Статистика рассылок</h1>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Всего рассылок: {{ total_mailings }}</h3>
+        </div>
+
+        {% if active_mailings %}
+        <div class="stat-card">
+            <h3>Активные рассылки</h3>
+            <div class="stat-number">{{ active_mailings }}</div>
+        </div>
+        {% endif %}
+
+        {% if unique_recipients %}
+        <div class="stat-card">
+            <h3>Уникальных получателей</h3>
+            <div class="stat-number">{{ unique_recipients }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>
+
+<!-- Добавьте CSS для оформления карточек статистики -->
+<style>
+    .stats-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        min-width: 250px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #0d6efd;
+        margin-top: 10px;
+    }
+</style>
+
+
+
+<!-- Отображаем последние рассылки -->
+    {% if mailings_list %}
+    <div class="recent-mailings mt-5">
+        <h2>Рассылки</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Получатель рассылки</th>
+                        <th>Тема письма</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Дата начало рассылки</th>
+                        <th>Дата окончания рассылки</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mailing in mailings_list %}
+                    <tr>
+                        <td>
+                            {% for client in mailing.recipients.all %}
+                            {{ client.email }}
+                            {% endfor %}
+                        </td>
+                        <td>{{ mailing.message }}</td>
+                        <td>
+                            <span class="badge {% if mailing.status == 'started' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ mailing.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ mailing.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ mailing.start_datetime|date:"d.m.Y H:i" }}</td>
+                        <td>{{ mailing.end_datetime|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <!-- Кнопка просмотра -->
+                            <a href="{% url 'services:mail_detail' mailing.pk %}"
+                               class="btn btn-sm btn-info"
+                               title="Просмотр деталей рассылки">
+                                <i class="bi bi-eye"></i> Просмотр
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

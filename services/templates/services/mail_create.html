@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Создание новой рассылки</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .help-text {
+            color: #6c757d;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Создание рассылки</h1>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            <h5>Исправьте следующие ошибки:</h5>
+            <ul class="mb-0">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                </label>
+
+                {% if field.field.widget.input_type == 'select' or field.field.widget.input_type == 'selectmultiple' %}
+                    {{ field }}
+                {% else %}
+                    {{ field }}
+                {% endif %}
+
+                {% if field.help_text %}
+                <div class="help-text">{{ field.help_text }}</div>
+                {% endif %}
+
+                {% if field.errors %}
+                <div class="error-message">
+                    {% for error in field.errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary">Сохранить рассылку</button>
+                <a href="{% url 'services:mailing_list' %}" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const today = now.toISOString().slice(0, 16);
+
+            const startDateInput = document.querySelector('input[name="start_datetime"]');
+            const endDateInput = document.querySelector('input[name="end_datetime"]');
+
+            // Устанавливаем минимальную дату на текущее время
+            if (startDateInput) {
+                startDateInput.min = today;
+
+                // При изменении даты начала обновляем минимальную дату окончания
+                startDateInput.addEventListener('change', function() {
+                    if (endDateInput) {
+                        endDateInput.min = this.value;
+
+                        // Если текущее значение end_datetime раньше нового start_datetime
+                        if (endDateInput.value && endDateInput.value < this.value) {
+                            endDateInput.value = this.value;
+                        }
+                    }
+                });
+            }
+
+            if (endDateInput) {
+                // При загрузке страницы устанавливаем минимальную дату окончания
+                if (startDateInput && startDateInput.value) {
+                    endDateInput.min = startDateInput.value;
+                } else {
+                    endDateInput.min = today;
+                }
+
+                // При изменении даты окончания проверяем, что она не раньше начала
+                endDateInput.addEventListener('change', function() {
+                    if (startDateInput && startDateInput.value && this.value < startDateInput.value) {
+                        alert('Дата окончания должна быть позже даты начала');
+                        this.value = startDateInput.value;
+                    }
+                });
+            }
+
+            // Динамическое добавление/удаление класса is-invalid для полей с ошибками
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
+                        this.classList.remove('is-invalid');
+
+                        // Удаляем сообщение об ошибке, если оно есть
+                        const errorDiv = this.parentElement.querySelector('.error-message');
+                        if (errorDiv) {
+                            errorDiv.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
